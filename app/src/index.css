@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Cubic 11';
+  src: url('/fonts/Cubic_11.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --paper: #FFF6E3;
+  --card: #FFFFFF;
+  --ink: #2B2118;
+  --muted: #8A7B66;
+  --hkred: #C8102E;
+  --hkblue: #1D4E89;
+  --accent: #C8102E;
+  --line: #2B2118;
+  --shadow-c: #2B2118;
+  --led: #E85D00;
+  --co-kmb-bg: #C8102E;
+  --co-kmb-fg: #FFF6E3;
+  --co-ctb-bg: #1D4E89;
+  --co-ctb-fg: #FFFFFF;
+}
+
+[data-theme='night'] {
+  --paper: #17121F;
+  --card: #221A31;
+  --ink: #E8DFF6;
+  --muted: #B9A8D6;
+  --hkred: #FF4FA0;
+  --hkblue: #4EE1C7;
+  --accent: #4EE1C7;
+  --line: #6C5A8E;
+  --shadow-c: #0B0812;
+  --led: #FFB84E;
+  --co-kmb-bg: #FF4FA0;
+  --co-kmb-fg: #17121F;
+  --co-ctb-bg: #4EE1C7;
+  --co-ctb-fg: #17121F;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-hkred: var(--hkred);
+  --color-hkblue: var(--hkblue);
+  --color-accent: var(--accent);
+  --color-line: var(--line);
+  --color-led: var(--led);
+  --font-pixel: 'Cubic 11', 'DotGothic16', sans-serif;
+  --font-num: 'Press Start 2P', 'Cubic 11', monospace;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  transition: background 0.2s steps(4);
+}
+
+/* pixel card: hard border + hard shadow, zero radius */
+.pcard {
+  background: var(--card);
+  border: 2px solid var(--line);
+  box-shadow: 3px 3px 0 var(--shadow-c);
+  border-radius: 0;
+}
+
+/* pressable pixel button */
+.pbtn {
+  border: 2px solid var(--line);
+  box-shadow: 2px 2px 0 var(--shadow-c);
+  border-radius: 0;
+  background: var(--card);
+  cursor: pointer;
+}
+.pbtn:active {
+  translate: 2px 2px;
+  box-shadow: 0 0 0 var(--shadow-c);
+}
+
+@keyframes led-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+.led-blink {
+  animation: led-blink 0.9s steps(1) infinite;
+}
+
+@keyframes bus-drive {
+  from {
+    translate: 110% 0;
+  }
+  to {
+    translate: -60px 0;
+  }
+}
+.bus-drive {
+  animation: bus-drive 2.4s steps(24) infinite;
+}
