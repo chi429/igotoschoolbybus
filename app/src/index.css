@@ -237,3 +237,92 @@ body {
 .bus-drive {
   animation: bus-drive 2.2s linear infinite;
 }
+
+/* ── 過場動畫 ─────────────────────────────── */
+
+/* 轉 tab：淡入 + 微微向上浮 */
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.view-in {
+  animation: view-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 開詳情頁：由右邊滑入 */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.slide-in {
+  animation: slide-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 搜尋建議彈出 */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop {
+  animation: pop-in 0.18s ease-out both;
+  transform-origin: top center;
+}
+
+/* 結果列表：逐張卡 stagger 浮現（頭 8 個之後齊出） */
+.stagger > * {
+  animation: view-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.stagger > *:nth-child(3) { animation-delay: 0.11s; }
+.stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.stagger > *:nth-child(5) { animation-delay: 0.19s; }
+.stagger > *:nth-child(6) { animation-delay: 0.23s; }
+.stagger > *:nth-child(7) { animation-delay: 0.27s; }
+.stagger > *:nth-child(8) { animation-delay: 0.31s; }
+
+/* 日/夜切換：卡片、導覽等同步淡變 */
+.card,
+.navbar,
+.seg,
+.seg > button.on {
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* 卡片按落去有回饋 */
+button.card:active,
+.card button:active {
+  transition: transform 0.1s ease;
+}
+button.card:active {
+  transform: scale(0.985);
+}
+
+/* 尊重系統「減少動態效果」設定 */
+@media (prefers-reduced-motion: reduce) {
+  .view-in,
+  .slide-in,
+  .pop,
+  .stagger > * {
+    animation-duration: 0.01ms;
+    animation-delay: 0s;
+  }
+}

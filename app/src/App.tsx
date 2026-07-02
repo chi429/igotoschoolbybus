@@ -323,7 +323,7 @@ function RouteDetail(props: {
   }
 
   return (
-    <div>
+    <div className="slide-in">
       <div className="mb-2 flex items-center gap-2">
         <button onClick={onBack} className="icon-btn -ml-2" aria-label="返去">
           <BackIcon size={20} />
@@ -427,7 +427,7 @@ function StopDetail(props: {
   }, [rows])
 
   return (
-    <div>
+    <div className="slide-in">
       <div className="mb-3 flex items-center gap-2">
         <button onClick={onBack} className="icon-btn -ml-2" aria-label="返去">
           <BackIcon size={20} />
@@ -734,7 +734,7 @@ export default function App() {
       </header>
 
       {mode === 'p2p' && (
-        <>
+        <div key="p2p" className="view-in">
           <section className="space-y-3 p-4">
             <LocationField
               input={fromInput}
@@ -787,18 +787,18 @@ export default function App() {
               </p>
             )}
 
-            <ul className="space-y-3">
+            <ul className="stagger space-y-3">
               {db &&
                 sorted.map(g => (
                   <JourneyCard key={g.id} db={db} g={g} eta={etas[g.id]} tick={tick} />
                 ))}
             </ul>
           </main>
-        </>
+        </div>
       )}
 
       {mode === 'route' && (
-        <main className="p-4">
+        <main key="route" className="view-in p-4">
           {!db && !dbErr && <BusLoading label="載入路線資料中…" />}
           {db && !routeSel && !stopSel && (
             <>
@@ -834,7 +834,7 @@ export default function App() {
                   {stopGroups.length > 0 && (
                     <h2 className="mb-2 px-1 text-xs font-semibold text-muted">路線</h2>
                   )}
-                  <ul className="space-y-2.5">
+                  <ul className="stagger space-y-2.5">
                     {routeResults.map(g => {
                       const fare = getFare(db, g.cos, g.route)
                       return (
@@ -867,7 +867,7 @@ export default function App() {
               {stopGroups.length > 0 && (
                 <section className="mt-4">
                   <h2 className="mb-2 px-1 text-xs font-semibold text-muted">車站</h2>
-                  <ul className="space-y-2.5">
+                  <ul className="stagger space-y-2.5">
                     {stopGroups.map(g => {
                       const nums = routeNumbersAtStops(db, g.stops)
                       return (
@@ -911,7 +911,7 @@ export default function App() {
       )}
 
       {mode === 'special' && (
-        <main className="p-4">
+        <main key="special" className="view-in p-4">
           {!db && !dbErr && <BusLoading label="載入路線資料中…" />}
           {db && spSel && (
             <RouteDetail
@@ -974,7 +974,7 @@ export default function App() {
                   lines={['冇符合嘅路線', '試下改吓「由/去」？']}
                 />
               )}
-              <ul className="mt-4 space-y-2.5">
+              <ul className="stagger mt-4 space-y-2.5">
                 {specialList.map(g => {
                   const fare = getFare(db, g.cos, g.route)
                   return (
@@ -1007,7 +1007,7 @@ export default function App() {
       )}
 
       {mode === 'fav' && (
-        <main className="space-y-4 p-4">
+        <main key="fav" className="view-in space-y-4 p-4">
           {!db && !dbErr && <BusLoading label="載入路線資料中…" />}
           {db && favs.length === 0 && routeFavs.length === 0 && (
             <EmptyState
