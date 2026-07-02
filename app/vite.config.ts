@@ -16,6 +16,10 @@ export default defineConfig({
         // 路線/車站快照都 cache 埋，離線都開到 app（ETA 就梗係要網啦）
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,json}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // 新版一 deploy，下次 reload 就即刻換走舊 SW + 清走舊 cache
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
       },
       manifest: {
         name: '搭咩巴士',
