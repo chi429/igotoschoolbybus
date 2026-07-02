@@ -1,11 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: 'Cubic 11';
-  src: url('/fonts/Cubic_11.woff2') format('woff2');
-  font-display: swap;
-}
-
 :root {
   --paper: #FFF6E3;
   --card: #FFFFFF;
@@ -51,8 +45,17 @@
   --color-accent: var(--accent);
   --color-line: var(--line);
   --color-led: var(--led);
-  --font-pixel: 'Cubic 11', 'DotGothic16', sans-serif;
-  --font-num: 'Press Start 2P', 'Cubic 11', monospace;
+  --font-pixel: var(--font-sans);
+  --font-num: var(--font-sans);
+}
+
+/* 易讀字體：粗體 + 等寬數字，取代舊 pixel font */
+.font-pixel {
+  font-weight: 800;
+}
+.font-num {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 html {

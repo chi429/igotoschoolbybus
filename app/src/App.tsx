@@ -113,11 +113,11 @@ function LocationField(props: {
 
 function EtaBadge({ mins }: { mins: number }) {
   if (mins <= 0) {
-    return <span className="led-blink font-num text-sm text-led">即到</span>
+    return <span className="led-blink font-num text-base text-led">即到</span>
   }
   return (
     <span className="flex items-baseline gap-1">
-      <span className={`font-num text-xl ${mins <= 3 ? 'text-led' : 'text-accent'}`}>{mins}</span>
+      <span className={`font-num text-2xl ${mins <= 3 ? 'text-led' : 'text-accent'}`}>{mins}</span>
       <span className="text-xs text-muted">分</span>
     </span>
   )
@@ -173,7 +173,7 @@ function RouteDetail({ db, v, onBack }: { db: DB; v: RouteVariant; onBack: () =>
                 className={`flex w-full items-center gap-3 px-3 py-2.5 text-left ${open ? 'bg-paper' : ''}`}
                 onClick={() => toggle(idx, stopId)}
               >
-                <span className="font-num w-7 shrink-0 text-right text-[10px] text-muted">
+                <span className="font-num w-7 shrink-0 text-right text-xs text-muted">
                   {idx + 1}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-[15px]">{s.nameTC.split(',')[0]}</span>
@@ -198,10 +198,87 @@ function RouteDetail({ db, v, onBack }: { db: DB; v: RouteVariant; onBack: () =>
   )
 }
 
+function FavRow(props: { db: DB; fav: Fav; onGo: () => void; onRemove: () => void }) {
+  const { db, fav, onGo, onRemove } = props
+  const [etas, setEtas] = useState<Record<string, EtaInfo>>({})
+
+  const journeys = useMemo(() => findJourneys(db, fav.from, fav.to), [db, fav])
+
+  useEffect(() => {
+    if (journeys.length === 0) return
+    let cancelled = false
+    const load = async () => {
+      const results = await Promise.all(journeys.map(j => fetchEta(j)))
+      if (cancelled) return
+      const next: Record<string, EtaInfo> = {}
+      journeys.forEach((j, i) => (next[j.id] = results[i]))
+      setEtas(next)
+    }
+    load()
+    const t = setInterval(load, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(t)
+    }
+  }, [journeys])
+
+  const best = useMemo(() => {
+    const first = (j: Journey) => {
+      const m = etas[j.id]?.mins
+      return m && m.length > 0 ? m[0] : 9999
+    }
+    return [...journeys].sort((a, b) => first(a) - first(b) || a.walkToBoard - b.walkToBoard).slice(0, 3)
+  }, [journeys, etas])
+
+  return (
+    <div className="pcard p-4">
+      <div className="flex items-center justify-between gap-2">
+        <button onClick={onGo} className="min-w-0 flex-1 text-left">
+          <span className="block truncate text-[15px] font-bold">
+            {fav.from.label.split(',')[0].replace('📍 ', '')} → {fav.to.label.split(',')[0]}
+          </span>
+        </button>
+        <button onClick={onRemove} className="shrink-0 text-muted hover:text-hkred" aria-label="刪除收藏">
+          ✕
+        </button>
+      </div>
+      {journeys.length === 0 && <p className="mt-2 text-sm text-muted">揾唔到直達巴士 🥲</p>}
+      <ul className="mt-2 space-y-2">
+        {best.map(j => {
+          const eta = etas[j.id]
+          return (
+            <li key={j.id} className="flex items-center gap-3">
+              <RouteBadge co={j.co} route={j.route} size="text-xs" />
+              <span className="min-w-0 flex-1 truncate text-sm text-muted">
+                {j.board.nameTC.split(',')[0]} 上車
+              </span>
+              <span className="shrink-0">
+                {!eta && <span className="text-sm text-muted">…</span>}
+                {eta && eta.mins.length === 0 && (
+                  <span className="text-xs text-muted">{eta.rmk || '暫無班次'}</span>
+                )}
+                {eta && eta.mins.length > 0 && <EtaBadge mins={eta.mins[0]} />}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+type Mode = 'p2p' | 'route' | 'fav'
+
+const NAV_TABS: { id: Mode; icon: string; label: string }[] = [
+  { id: 'p2p', icon: '🚏', label: '點對點' },
+  { id: 'route', icon: '🔍', label: '查路線' },
+  { id: 'fav', icon: '★', label: '收藏' },
+]
+
 export default function App() {
   const [db, setDb] = useState<DB | null>(null)
   const [dbErr, setDbErr] = useState(false)
-  const [mode, setMode] = useState<'p2p' | 'route'>('p2p')
+  const [mode, setMode] = useState<Mode>('p2p')
   const fromInput = usePlaceInput(db)
   const toInput = usePlaceInput(db)
   const [gpsBusy, setGpsBusy] = useState(false)
@@ -292,17 +369,21 @@ export default function App() {
   }
 
   const isFav = !!(from && to && favs.some(f => f.from.label === from.label && f.to.label === to.label))
-  const toggleFav = () => {
-    if (!from || !to) return
-    const next = isFav
-      ? favs.filter(f => !(f.from.label === from.label && f.to.label === to.label))
-      : [...favs, { from, to }]
+  const saveFavs = (next: Fav[]) => {
     setFavs(next)
     localStorage.setItem('bus-favs', JSON.stringify(next))
   }
+  const toggleFav = () => {
+    if (!from || !to) return
+    saveFavs(
+      isFav
+        ? favs.filter(f => !(f.from.label === from.label && f.to.label === to.label))
+        : [...favs, { from, to }],
+    )
+  }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-md pb-16 text-ink">
+    <div className="mx-auto min-h-dvh max-w-md pb-28 text-ink">
       <header className="flex items-center justify-between px-4 pb-1 pt-5">
         <h1 className="font-pixel text-2xl text-hkred">搭咩巴士 🚌</h1>
         <div className="flex items-center gap-3">
@@ -312,21 +393,6 @@ export default function App() {
           </button>
         </div>
       </header>
-
-      <div className="flex gap-2 px-4 pt-3">
-        <button
-          onClick={() => setMode('p2p')}
-          className={`pbtn flex-1 py-2 text-sm ${mode === 'p2p' ? 'seg-active' : 'text-muted'}`}
-        >
-          點對點
-        </button>
-        <button
-          onClick={() => setMode('route')}
-          className={`pbtn flex-1 py-2 text-sm ${mode === 'route' ? 'seg-active' : 'text-muted'}`}
-        >
-          查路線
-        </button>
-      </div>
 
       {mode === 'p2p' && (
         <>
@@ -481,6 +547,50 @@ export default function App() {
           {db && routeSel && <RouteDetail db={db} v={routeSel} onBack={() => setRouteSel(null)} />}
         </main>
       )}
+
+      {mode === 'fav' && (
+        <main className="space-y-4 p-4">
+          {!db && !dbErr && <BusLoading label="載入路線資料中…" />}
+          {db && favs.length === 0 && (
+            <div className="py-10 text-center text-sm text-muted">
+              <p className="text-3xl">☆</p>
+              <p className="mt-2">未有收藏路線</p>
+              <p>去「點對點」揀好路線，㩒「☆ 收藏路線」</p>
+            </div>
+          )}
+          {db &&
+            favs.map((f, i) => (
+              <FavRow
+                key={`${f.from.label}-${f.to.label}`}
+                db={db}
+                fav={f}
+                onGo={() => {
+                  fromInput.setPlace(f.from)
+                  toInput.setPlace(f.to)
+                  setMode('p2p')
+                }}
+                onRemove={() => saveFavs(favs.filter((_, j) => j !== i))}
+              />
+            ))}
+        </main>
+      )}
+
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t-2 border-line bg-card pb-[env(safe-area-inset-bottom)]">
+        <div className="flex">
+          {NAV_TABS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setMode(t.id)}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 ${
+                mode === t.id ? 'font-bold text-accent' : 'text-muted'
+              }`}
+            >
+              <span className="text-lg leading-none">{t.icon}</span>
+              <span className="text-xs">{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   )
 }
