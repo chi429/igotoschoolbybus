@@ -86,25 +86,29 @@ interface CtbEta {
   rmk_tc: string
 }
 
-export async function fetchEta(j: Journey): Promise<EtaInfo> {
+export async function fetchStopEta(
+  co: 'kmb' | 'ctb',
+  stopId: string,
+  route: string,
+  serviceType: string,
+  bound: string,
+): Promise<EtaInfo> {
   const now = Date.now()
   let rows: { dir: string; eta: string | null; rmk_tc: string }[] = []
   try {
-    if (j.co === 'kmb') {
+    if (co === 'kmb') {
       const r = await fetch(
-        `https://data.etabus.gov.hk/v1/transport/kmb/eta/${j.board.id}/${j.route}/${j.serviceType}`,
+        `https://data.etabus.gov.hk/v1/transport/kmb/eta/${stopId}/${route}/${serviceType}`,
       )
       rows = ((await r.json()).data ?? []) as KmbEta[]
     } else {
-      const r = await fetch(
-        `https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${j.board.id}/${j.route}`,
-      )
+      const r = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${stopId}/${route}`)
       rows = ((await r.json()).data ?? []) as CtbEta[]
     }
   } catch {
     return { mins: [], rmk: '未能讀取' }
   }
-  const dirRows = rows.filter(e => e.dir === j.bound)
+  const dirRows = rows.filter(e => e.dir === bound)
   const mins = dirRows
     .filter(e => e.eta)
     .map(e => Math.round((new Date(e.eta!).getTime() - now) / 60000))
@@ -112,4 +116,8 @@ export async function fetchEta(j: Journey): Promise<EtaInfo> {
     .slice(0, 3)
   const rmk = dirRows.find(e => e.rmk_tc)?.rmk_tc ?? ''
   return { mins, rmk }
+}
+
+export function fetchEta(j: Journey): Promise<EtaInfo> {
+  return fetchStopEta(j.co, j.board.id, j.route, j.serviceType, j.bound)
 }

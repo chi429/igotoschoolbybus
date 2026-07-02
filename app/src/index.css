@@ -41,6 +41,7 @@
 }
 
 @theme inline {
+  --font-sans: -apple-system, 'PingFang HK', 'PingFang TC', 'Noto Sans HK', 'Microsoft JhengHei', sans-serif;
   --color-paper: var(--paper);
   --color-card: var(--card);
   --color-ink: var(--ink);
@@ -58,10 +59,11 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 內文用系統字體易讀；pixel 字得返標題、路線牌、ETA 數字 (.font-pixel / .font-num) */
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-pixel);
+  font-family: var(--font-sans);
   transition: background 0.2s steps(4);
 }
 
@@ -84,6 +86,11 @@ body {
 .pbtn:active {
   translate: 2px 2px;
   box-shadow: 0 0 0 var(--shadow-c);
+}
+
+.seg-active {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 @keyframes led-blink {

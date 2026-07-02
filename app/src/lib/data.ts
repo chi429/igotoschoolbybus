@@ -100,6 +100,28 @@ export interface Place {
   lng: number
 }
 
+export function searchRoutes(db: DB, q: string, max = 30): RouteVariant[] {
+  const query = q.trim().toUpperCase()
+  if (!query) return []
+  // dedupe by co+route+bound, keep main service (lowest service_type)
+  const best = new Map<string, RouteVariant>()
+  for (const v of db.variants.values()) {
+    if (!v.route.startsWith(query)) continue
+    const k = `${v.co}:${v.route}:${v.bound}`
+    const cur = best.get(k)
+    if (!cur || +v.serviceType < +cur.serviceType) best.set(k, v)
+  }
+  return [...best.values()]
+    .sort(
+      (a, b) =>
+        a.route.length - b.route.length ||
+        a.route.localeCompare(b.route) ||
+        a.co.localeCompare(b.co) ||
+        a.bound.localeCompare(b.bound),
+    )
+    .slice(0, max)
+}
+
 export function searchStops(db: DB, q: string, max = 12): Place[] {
   const query = q.trim().toLowerCase()
   if (query.length < 1) return []
