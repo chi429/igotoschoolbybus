@@ -1,58 +1,58 @@
 @import "tailwindcss";
 
+/* ── C1 暖紙白 tokens ─────────────────────────────
+   日/夜同一套暖色相：夜間只加深，唔換 hue。
+   九巴紅 / 城巴藍 兩個模式都保持可辨認。 */
 :root {
-  --paper: #FFF6E3;
-  --card: #FFFFFF;
-  --ink: #2B2118;
-  --muted: #8A7B66;
-  --hkred: #C8102E;
-  --hkblue: #1D4E89;
+  --bg: #F5F3EE;
+  --card: #FDFCFA;
+  --ink: #25211A;
+  --muted: #8C8574;
+  --line: #E7E2D8;
   --accent: #C8102E;
-  --line: #2B2118;
-  --shadow-c: #2B2118;
-  --led: #E85D00;
-  --co-kmb-bg: #C8102E;
-  --co-kmb-fg: #FFF6E3;
-  --co-ctb-bg: #1D4E89;
+  --accent-soft: #F7E9E4;
+  --led: #C8102E;
+  --co-kmb: #C8102E;
+  --co-kmb-fg: #FFFFFF;
+  --co-ctb: #0B5CAB;
   --co-ctb-fg: #FFFFFF;
+  --shadow-card: 0 1px 2px rgba(43, 36, 24, 0.04), 0 4px 16px rgba(43, 36, 24, 0.06);
+  --shadow-pop: 0 8px 30px rgba(43, 36, 24, 0.16);
+  --shadow-nav: 0 6px 24px rgba(43, 36, 24, 0.14);
 }
 
 [data-theme='night'] {
-  --paper: #17121F;
-  --card: #221A31;
-  --ink: #E8DFF6;
-  --muted: #B9A8D6;
-  --hkred: #FF4FA0;
-  --hkblue: #4EE1C7;
-  --accent: #4EE1C7;
-  --line: #6C5A8E;
-  --shadow-c: #0B0812;
-  --led: #FFB84E;
-  --co-kmb-bg: #FF4FA0;
-  --co-kmb-fg: #17121F;
-  --co-ctb-bg: #4EE1C7;
-  --co-ctb-fg: #17121F;
+  --bg: #161310;
+  --card: #211D17;
+  --ink: #EDE8DF;
+  --muted: #A09685;
+  --line: #373127;
+  --accent: #F2635F;
+  --accent-soft: rgba(242, 99, 95, 0.13);
+  --led: #F2635F;
+  --co-kmb: #E0473F;
+  --co-kmb-fg: #FFFFFF;
+  --co-ctb: #4E93E6;
+  --co-ctb-fg: #FFFFFF;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 10px 34px rgba(0, 0, 0, 0.55);
+  --shadow-nav: 0 8px 28px rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
   --font-sans: -apple-system, 'PingFang HK', 'PingFang TC', 'Noto Sans HK', 'Microsoft JhengHei', sans-serif;
-  --color-paper: var(--paper);
+  --color-bg: var(--bg);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
-  --color-hkred: var(--hkred);
-  --color-hkblue: var(--hkblue);
   --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --color-line: var(--line);
   --color-led: var(--led);
-  --font-pixel: var(--font-sans);
-  --font-num: var(--font-sans);
+  --color-kmb: var(--co-kmb);
+  --color-ctb: var(--co-ctb);
 }
 
-/* 易讀字體：粗體 + 等寬數字，取代舊 pixel font */
-.font-pixel {
-  font-weight: 800;
-}
 .font-num {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -62,57 +62,178 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 內文用系統字體易讀；pixel 字得返標題、路線牌、ETA 數字 (.font-pixel / .font-num) */
 body {
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  transition: background 0.2s steps(4);
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
-/* pixel card: hard border + hard shadow, zero radius */
-.pcard {
+.card {
   background: var(--card);
-  border: 2px solid var(--line);
-  box-shadow: 3px 3px 0 var(--shadow-c);
-  border-radius: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
 }
 
-/* pressable pixel button */
-.pbtn {
-  border: 2px solid var(--line);
-  box-shadow: 2px 2px 0 var(--shadow-c);
-  border-radius: 0;
+.pop {
   background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
-.pbtn:active {
-  translate: 2px 2px;
-  box-shadow: 0 0 0 var(--shadow-c);
+.btn:active {
+  transform: scale(0.96);
+}
+.btn-on {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent);
 }
 
-.seg-active {
-  background: var(--ink);
-  color: var(--paper);
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.icon-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-@keyframes led-blink {
-  50% {
-    opacity: 0.25;
+.seg {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px;
+}
+.seg > button {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.seg > button.on {
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+}
+
+/* 懸浮膠囊 nav */
+.navbar {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 30;
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-nav);
+}
+.navbar > button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.navbar > button.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* 營運商色帶（卡片左邊） */
+.co-stripe {
+  display: flex;
+  flex-direction: column;
+  width: 4px;
+  align-self: stretch;
+  flex-shrink: 0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.co-stripe > span {
+  flex: 1;
+}
+
+/* 行程軸線 */
+.axis-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  border: 2px solid var(--muted);
+  background: var(--card);
+  flex-shrink: 0;
+}
+.axis-dot.end {
+  background: var(--muted);
+}
+.axis-line {
+  width: 2px;
+  flex: 1;
+  min-height: 14px;
+  background: var(--line);
+  margin: 2px 0;
+}
+
+/* ETA 30 秒更新倒數環 */
+@keyframes ring-cycle {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -50.27;
   }
 }
-.led-blink {
-  animation: led-blink 0.9s steps(1) infinite;
+.ring-arc {
+  animation: ring-cycle 30s linear infinite;
+}
+
+@keyframes eta-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.eta-pulse {
+  animation: eta-pulse 1.2s ease-in-out infinite;
 }
 
 @keyframes bus-drive {
   from {
-    translate: 110% 0;
+    translate: 130% 0;
   }
   to {
-    translate: -60px 0;
+    translate: -48px 0;
   }
 }
 .bus-drive {
-  animation: bus-drive 2.4s steps(24) infinite;
+  animation: bus-drive 2.2s linear infinite;
 }

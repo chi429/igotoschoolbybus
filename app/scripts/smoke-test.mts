@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { ingest, searchStops, type DB } from '../src/lib/data.ts'
 import { findJourneys, fetchEta } from '../src/lib/journey.ts'
 
-const db: DB = { stops: [], stopMap: new Map(), variants: new Map(), stopToVariants: new Map() }
+const db: DB = { stops: [], stopMap: new Map(), variants: new Map(), stopToVariants: new Map(), fares: new Map() }
 ingest(db, 'kmb', JSON.parse(readFileSync('public/data/kmb.json', 'utf8')))
 ingest(db, 'ctb', JSON.parse(readFileSync('public/data/ctb.json', 'utf8')))
 console.log(`DB: ${db.stops.length} stops, ${db.variants.size} variants`)
